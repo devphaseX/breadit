@@ -26,21 +26,24 @@ const formatDistanceLocale = {
   almostXYears: '{{count}}y',
 };
 
+type FormatDistanceLocale = typeof formatDistanceLocale;
+
 interface FormatDistanceOption {
   addSuffix?: boolean;
   comparison?: number;
 }
 
-function formatDistance(
-  token: string,
+function formatDistance<Token extends keyof FormatDistanceLocale>(
+  token: Token,
   count: number,
   options?: FormatDistanceOption
 ): string {
   options = options || {};
 
-  const result = formatDistanceLocale[
-    token as keyof typeof formatDistanceLocale
-  ].replace('{{count}}', count.toString());
+  const result = formatDistanceLocale[token].replace(
+    '{{count}}',
+    count.toString()
+  );
 
   if (options.addSuffix) {
     if (options.comparison ?? 0 > 0) {
