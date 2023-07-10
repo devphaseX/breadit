@@ -3,13 +3,19 @@ import '@/styles/globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Toaster } from '@/components/ui/Toaster';
 import { AuthSessionProvider } from '@/components/AuthSessionProvider';
+import { Providers } from '@/components/Providers';
+import localFont from 'next/font/local';
+import path from 'path';
 
 export const metadata = {
   title: 'Breadit',
   description: 'A Reddit clone built with Next.js and TypeScript.',
 };
 
-const fontClassName = '';
+const Inter = localFont({
+  src: '../../public/font/inter/inter-variable.ttf',
+  variable: '--inter-variable',
+});
 
 export default function RootLayout({
   children,
@@ -21,14 +27,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn('bg-white text-slate-900 antialiased', fontClassName)}
+      className={cn('bg-white text-slate-900 antialiased', Inter.className)}
     >
       <body className="min-h-screen pt-12 bg-slate-50 antialiased">
         <AuthSessionProvider>
-          {/* @ts-expect-error server side component */}
-          <Navbar />
-          {authModal}
-          <div className="container max-w-7xl h-full pt-12">{children}</div>
+          <Providers>
+            {/* @ts-expect-error server side component */}
+            <Navbar />
+            {authModal}
+            <div className="container max-w-7xl h-full pt-12">{children}</div>
+          </Providers>
         </AuthSessionProvider>
         <Toaster />
       </body>
