@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Account {
-  id                String  @id @default(cuid())
+  id                String  @id @default(uuid())
   userId            String
   type              String
   provider          String
@@ -30,7 +30,7 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+   id                String  @id @default(uuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -38,7 +38,7 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id                String  @id @default(uuid())
   name          String?
   email         String?   @unique
   username      String?   @unique
@@ -56,7 +56,7 @@ model User {
 }
 
 model Subreddit {
-  id        String   @id @default(cuid())
+  id                String  @id @default(uuid())
   name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -81,7 +81,7 @@ model Subscription {
 }
 
 model Post {
-  id          String    @id @default(cuid())
+  id                String  @id @default(uuid())
   title       String
   content     Json?
   subreddit   Subreddit @relation(fields: [subredditId], references: [id])
@@ -96,7 +96,7 @@ model Post {
 }
 
 model Comment {
-  id       String @id @default(cuid())
+  id                String  @id @default(uuid())
   text     String
   author   User   @relation(fields: [authorId], references: [id])
   authorId String

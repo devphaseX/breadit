@@ -1,17 +1,12 @@
 import { SubRedditValidator } from '@/lib/validator/subreddit';
-import { getAuthSession } from '../auth/[...nextauth]/route';
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ZodError } from 'zod';
+import authMiddleware from '@/lib/auth';
 
-export async function POST(req: Request) {
+export const POST = authMiddleware(async (session, req) => {
   try {
-    const session = await getAuthSession();
-    if (!session?.user) {
-      return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    const { name } = SubRedditValidator.parse(req.body);
+    const { name } = SubRedditValidator.parse(await req.json());
 
     let subreddit = await db.subreddit.findFirst({ where: { name } });
 
@@ -20,7 +15,11 @@ export async function POST(req: Request) {
     }
 
     subreddit = await db.subreddit.create({
-      data: { name, subcribers: { create: { userId: session.user.id! } } },
+      data: {
+        name,
+        creatorId: session.user.id,
+        subcribers: { create: { userId: session.user.id! } },
+      },
     });
 
     return new NextResponse(subreddit.name);
@@ -31,4 +30,4 @@ export async function POST(req: Request) {
 
     return new NextResponse('Could not create your community', { status: 500 });
   }
-}
+});

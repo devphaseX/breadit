@@ -3,9 +3,10 @@ import { MiniCreatePost } from '@/components/MinCreatePost';
 import { INFINITE_SCROLLING_PAGINATE_RESULTS } from '@/config';
 import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
+import { SubredditPageParams } from './type';
 
 interface PageProps {
-  params: { slug: string };
+  params: SubredditPageParams;
 }
 
 const Page = async ({ params: { slug } }: PageProps) => {
