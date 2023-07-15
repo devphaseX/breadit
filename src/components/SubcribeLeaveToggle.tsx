@@ -98,7 +98,7 @@ export const SubcribeLeaveToggle: FC<SubcribeLeaveToggleProps> = ({
   return currentlySubscribed ? (
     <Button
       className="w-full mt-1 mb-4"
-      isLoading={processingSubcribeRequest}
+      isLoading={processingUnsubscribeRequest}
       onClick={() => unsubscribeUser({ subredditId })}
     >
       Leave community
@@ -106,7 +106,7 @@ export const SubcribeLeaveToggle: FC<SubcribeLeaveToggleProps> = ({
   ) : (
     <Button
       className="w-full mt-1 mb-4"
-      isLoading={processingUnsubscribeRequest}
+      isLoading={processingSubcribeRequest}
       onClick={() => subscribeUser({ subredditId })}
     >
       Join to post
