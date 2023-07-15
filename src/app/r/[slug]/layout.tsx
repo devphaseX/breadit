@@ -18,7 +18,7 @@ const Layout = async ({ children, params: { slug } }: LayoutProps) => {
       where: { name: slug },
       include: { post: { include: { author: true, votes: true } } },
     }),
-    db.subreddit.count({ where: { name: slug } }),
+    db.subscription.count({ where: { subreddit: { name: slug } } }),
     session?.user &&
       db.subscription.findFirst({
         where: { subreddit: { name: slug }, userId: session.user.id! },
@@ -28,7 +28,6 @@ const Layout = async ({ children, params: { slug } }: LayoutProps) => {
   const userSubscribedSubreddit = !!subscription;
 
   if (!subreddit) return notFound();
-  console.log(subreddit.creatorId, session?.user.id);
 
   return (
     <div className="sm:container max-w-7xl mx-auto h-full pt-12">
