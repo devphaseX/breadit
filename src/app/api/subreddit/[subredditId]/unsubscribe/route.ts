@@ -25,6 +25,13 @@ export const DELETE = authMiddleware<{ params: { subredditId: string } }>(
         return new NextResponse('Subreddit not found', { status: 404 });
       }
 
+      if (subredddit.creatorId === user.id) {
+        return new NextResponse(
+          'You cannot unsubscribe as a creator of a subreddit',
+          { status: 400 }
+        );
+      }
+
       if (!subscription) {
         return new NextResponse('User not a member of this subreddit', {
           status: 400,
