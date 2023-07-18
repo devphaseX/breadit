@@ -5,6 +5,8 @@ import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 import { SubcribeLeaveToggle } from '@/components/SubcribeLeaveToggle';
+import Link from 'next/link';
+import { buttonVariants } from '@/components/ui/Button';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -68,6 +70,15 @@ const Layout = async ({ children, params: { slug } }: LayoutProps) => {
                   subredditId={subreddit.id}
                 />
               )}
+              <Link
+                href={`r/${slug}/submit`}
+                className={buttonVariants({
+                  variant: 'outline',
+                  className: 'w-full mb-6',
+                })}
+              >
+                Create Post
+              </Link>
             </dl>
           </div>
         </div>

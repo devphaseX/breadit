@@ -4,6 +4,8 @@ const envSchema = object({
   DATABASE_URL: string().nonempty(),
   GOOGLE_CLIENT_ID: string().nonempty(),
   GOOGLE_CLIENT_SECRET: string().nonempty(),
+  UPLOADTHING_SECRET: string().nonempty(),
+  UPLOADTHING_APP_ID: string().nonempty(),
 });
 
 type ParseEnvVariable = TypeOf<typeof envSchema>;
