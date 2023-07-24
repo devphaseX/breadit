@@ -17,15 +17,15 @@ export const GET = async (req: NextRequest) => {
 
   const previewURLTitle = (
     previewURLResponse.data as string | undefined
-  )?.match(/<title.*?>\s*(.*?)\s*<\/title>/)?.[0];
+  )?.match(/<title.*?>\s*(.*?)\s*<\/title>/)?.[1];
 
   const previewURLDescription = (
     previewURLResponse.data as string | undefined
-  )?.match(/\<meta (?=.*?name="description")(?=.*?content="(.*?)")/)?.[0];
+  )?.match(/\<meta (?=.*?name="description")(?=.*?content="(.*?)")/)?.[1];
 
   const previewURLImage = (
     previewURLResponse.data as string | undefined
-  )?.match(/\<meta (?=.*?property="og:image")(?=.*?content="(.*?)")/)?.[0];
+  )?.match(/\<meta (?=.*?property="og:image")(?=.*?content="(.*?)")/)?.[1];
 
   return new NextResponse(
     JSON.stringify({
