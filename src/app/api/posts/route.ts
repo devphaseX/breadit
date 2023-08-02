@@ -1,16 +1,17 @@
 import { db } from '@/lib/db';
 import { GetPostsPayload, getPostsValidator } from './()/validator';
 import { paginateData } from '@/lib/paginate';
-import { User, Vote } from '@prisma/client';
+import { User, Vote, VoteType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { ExtendedPost } from '@/types/db';
 import { getAuthSession } from '../auth/[...nextauth]/route';
 
 type VoteStats = {
   stat: {
-    [T in keyof Vote['type']]: number;
+    [T in Vote['type']]: number;
   };
-
+  participants: number;
+  userVoteType?: VoteType;
   voted: boolean;
 };
 
@@ -18,10 +19,12 @@ export type PostStats = ExtendedPost & {
   votesInfo: VoteStats;
 };
 
-const GET = async (req: NextRequest) => {
+const GET = async (req: NextRequest, context: unknown, m: unknown) => {
   const session = await getAuthSession();
   const paginatedPosts = await getPosts(
-    <GetPostsPayload>getPostsValidator.parse(req),
+    <GetPostsPayload>getPostsValidator.parse({
+      query: Object.fromEntries(new URLSearchParams(req.url)),
+    }),
     <User | undefined>session?.user ?? undefined
   );
 
@@ -50,14 +53,12 @@ export const getPosts = ({ query }: GetPostsPayload, user?: User) =>
         .then((posts) =>
           Promise.all(
             posts.map(async (post) => {
-              const [userAlreadyVoted, groupedVote] = await Promise.all([
+              const [userVote, groupedVote] = await Promise.all([
                 user
-                  ? db.vote
-                      .findFirst({
-                        where: { postId: post.id, userId: user.id! },
-                      })
-                      .then((vote) => !!vote)
-                  : false,
+                  ? db.vote.findFirst({
+                      where: { postId: post.id, userId: user.id! },
+                    })
+                  : null,
                 db.vote.groupBy({
                   where: { postId: post.id },
                   by: ['type'],
@@ -66,7 +67,10 @@ export const getPosts = ({ query }: GetPostsPayload, user?: User) =>
               ]);
 
               const _post = <PostStats>post;
-              const voteInfo = <VoteStats>{ voted: userAlreadyVoted };
+              const voteInfo = <VoteStats>{
+                voted: !!userVote,
+                ...(userVote && { userVoteType: userVote.type }),
+              };
               voteInfo.stat = <VoteStats['stat']>(
                 Object.fromEntries(
                   groupedVote.map(
@@ -75,6 +79,12 @@ export const getPosts = ({ query }: GetPostsPayload, user?: User) =>
                   )
                 )
               );
+              voteInfo.participants = Object.values(voteInfo.stat).reduce(
+                (acc, cur) => acc + cur,
+                0
+              );
+
+              _post.votesInfo = voteInfo;
 
               return _post;
             })
