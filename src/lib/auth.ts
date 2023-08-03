@@ -1,16 +1,15 @@
 import { getAuthSession } from '@/app/api/auth/[...nextauth]/route';
-import { NextApiResponse } from 'next';
 import { Session } from 'next-auth';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 type AuthHandler<Context> = (
   session: Session,
-  req: Request,
+  req: NextRequest,
   context: Context
 ) => unknown | Promise<unknown>;
 
 type AuthMiddlwareHandler<Context> = (
-  req: Request,
+  req: NextRequest,
   res: Context
 ) => unknown | Promise<unknown>;
 
