@@ -5,14 +5,23 @@ import { db } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { SubredditPageParams } from './type';
 import { PostFeed } from '@/components/PostFeed';
-import { paginateData } from '@/lib/paginate';
+import { getPosts } from '@/app/api/posts/route';
+import { NextPageContext } from 'next';
+import { getPostsValidator } from '@/app/api/posts/()/validator';
+import { User } from '@prisma/client';
 
-interface PageProps {
+interface PageProps extends NextPageContext {
   params: SubredditPageParams;
 }
 
-const Page = async ({ params: { slug } }: PageProps) => {
+const Page = async (props: PageProps) => {
+  const {
+    params: { slug },
+    query: rawQuery,
+  } = props;
+
   const session = await getAuthSession();
+
   const subreddit = await db.subreddit.findFirst({
     where: { name: slug },
     include: {
@@ -27,18 +36,12 @@ const Page = async ({ params: { slug } }: PageProps) => {
     return notFound();
   }
 
-  const paginatedPostPayload = await paginateData(async ({ limit, page }) => {
-    const [postCounts, posts] = await Promise.all([
-      db.post.count(),
-      db.post.findMany({
-        include: { votes: true, author: true, subreddit: true, comments: true },
-        take: limit,
-        skip: page * limit,
-      }),
-    ]);
-
-    return { data: posts, docCount: postCounts };
-  })({ limit: INFINITE_SCROLLING_PAGINATE_RESULTS, page: 0 });
+  const paginatedPosts = await getPosts(
+    getPostsValidator.parse({
+      query: { ...rawQuery, subredditName: subreddit.name },
+    }),
+    (session?.user ?? undefined) as User
+  );
 
   return (
     <>
@@ -46,10 +49,7 @@ const Page = async ({ params: { slug } }: PageProps) => {
         r/{subreddit.name}
       </h1>
       <MiniCreatePost session={session} />
-      <PostFeed
-        initialPost={paginatedPostPayload}
-        subredditName={subreddit.name}
-      />
+      <PostFeed initialPost={paginatedPosts} subredditName={subreddit.name} />
     </>
   );
 };
