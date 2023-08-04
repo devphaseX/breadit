@@ -6,7 +6,6 @@ interface PostIncludes
     Prisma.PostInclude,
     'votes' | 'comments' | 'author' | 'subreddit'
   > {
-  votes: true;
   subreddit: true;
   author: true;
   comments: true;
