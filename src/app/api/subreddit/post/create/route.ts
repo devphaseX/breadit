@@ -1,13 +1,14 @@
+import { NextResponse } from 'next/server';
 import authMiddleware from '@/lib/auth';
 import { db } from '@/lib/db';
 import { PostValidator } from '@/lib/validator/formValidator';
-import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 
 export const POST = authMiddleware(async ({ user }, req) => {
   try {
     const { title, subredditId, content } = PostValidator.parse(
-      await req.json()
+      req.body ||
+        (await (req as unknown as { json: () => Promise<any> }).json())
     );
     const userId = user.id as string;
 
