@@ -39,7 +39,7 @@ function paginateData<T>(fn: DataQueryFn<T>) {
 
     const { page: currentPage, limit: docLimit } = finalizedContext;
     const pageCount = docCount === 0 ? 0 : Math.ceil(docCount / docLimit);
-    const nextPage = currentPage + 1 >= pageCount ? null : currentPage + 1;
+    const nextPage = currentPage + 1 > pageCount ? null : currentPage + 1;
     const prevPage = currentPage === 1 ? null : currentPage - 1;
 
     return {
