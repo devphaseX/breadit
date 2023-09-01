@@ -6,6 +6,8 @@ const envSchema = object({
   GOOGLE_CLIENT_SECRET: string().nonempty(),
   UPLOADTHING_SECRET: string().nonempty(),
   UPLOADTHING_APP_ID: string().nonempty(),
+  UPSTASH_REDIS_REST_URL: string().nonempty(),
+  UPSTASH_REDIS_REST_TOKEN: string().nonempty(),
 });
 
 type ParseEnvVariable = TypeOf<typeof envSchema>;

@@ -67,4 +67,15 @@ export function formatTimeToNow(date: Date): string {
   });
 }
 
+export function tap(logger?: (value: unknown) => void): <T>(value: T) => T {
+  return function (value) {
+    if (logger) {
+      logger(value);
+    } else {
+      console.log(value);
+    }
+    return value;
+  };
+}
+
 export type { FormatDistanceOption };

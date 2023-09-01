@@ -8,7 +8,7 @@ type DataQueryFn<T> = (context: ParsedQuery) => Promise<DataQueryFnPayload<T>>;
 type PaginatePayload<T> = {
   data: Array<T>;
   paginate: {
-    page: { next: number | null; curent: number; prev: number | null };
+    page: { next: number | null; current: number; prev: number | null };
     count: number;
   };
 };
@@ -46,7 +46,7 @@ function paginateData<T>(fn: DataQueryFn<T>) {
       data,
       paginate: {
         page: {
-          curent: currentPage,
+          current: currentPage,
           next: nextPage,
           prev: prevPage,
         },
