@@ -6,5 +6,7 @@ export const getPostsValidator = object({
 });
 
 type GetPostsPayload = TypeOf<typeof getPostsValidator>;
-type GetPostsQuery = GetPostsPayload['query'];
+type GetPostsQuery = Partial<GetPostsPayload['query']> & {
+  subredditIdNames?: Array<string>;
+};
 export type { GetPostsPayload, GetPostsQuery };

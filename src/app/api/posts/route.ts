@@ -1,12 +1,16 @@
 import { db } from '@/lib/db';
-import { GetPostsPayload, getPostsValidator } from './()/validator';
+import {
+  GetPostsPayload,
+  GetPostsQuery,
+  getPostsValidator,
+} from './()/validator';
 import { paginateData } from '@/lib/paginate';
 import { User, Vote, VoteType } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { ExtendedPost } from '@/types/db';
 import { getAuthSession } from '../auth/[...nextauth]/route';
 
-type VoteStats = {
+export type VoteStats = {
   stat: {
     [T in Vote['type']]: number;
   };
@@ -19,7 +23,7 @@ export type PostStats = ExtendedPost & {
   votesInfo: VoteStats;
 };
 
-const GET = async (req: NextRequest, context: unknown, m: unknown) => {
+const GET = async (req: NextRequest) => {
   const session = await getAuthSession();
   const paginatedPosts = await getPosts(
     <GetPostsPayload>getPostsValidator.parse({
@@ -31,25 +35,38 @@ const GET = async (req: NextRequest, context: unknown, m: unknown) => {
   return NextResponse.json(paginatedPosts);
 };
 
-export const getPosts = ({ query }: GetPostsPayload, user?: User) =>
+export const getPosts = ({ query }: { query: GetPostsQuery }, user?: User) =>
   paginateData(async ({ offset, take }) => {
     const [count, posts] = await Promise.all([
       db.post.count({
         where: {
-          ...(query.subredditName && {
-            subreddit: { name: query.subredditName },
+          ...(query.subredditName &&
+            !query.subredditIdNames && {
+              subreddit: { name: query.subredditName },
+            }),
+
+          ...(query.subredditIdNames && {
+            subreddit: { name: { in: query.subredditIdNames } },
           }),
         },
       }),
       db.post
         .findMany({
-          ...(query.subredditName && {
-            where: { subreddit: { name: query.subredditName } },
+          ...((query.subredditName || query.subredditIdNames) && {
+            where: {
+              subreddit: {
+                name: query.subredditIdNames
+                  ? { in: query.subredditIdNames as Array<string> }
+                  : (query.subredditName as string),
+              },
+            },
           }),
           skip: offset,
           take,
           include: { subreddit: true, author: true, comments: true },
+          orderBy: { createdAt: 'asc' },
         })
+
         .then((posts) =>
           Promise.all(
             posts.map(async (post) => {
@@ -79,10 +96,9 @@ export const getPosts = ({ query }: GetPostsPayload, user?: User) =>
                   )
                 )
               );
-              voteInfo.participants = Object.values(voteInfo.stat).reduce(
-                (acc, cur) => acc + cur,
-                0
-              );
+
+              voteInfo.participants =
+                (voteInfo.stat.UP ?? 0) - (voteInfo.stat.DOWN ?? 0);
 
               _post.votesInfo = voteInfo;
 
