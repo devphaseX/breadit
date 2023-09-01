@@ -4,7 +4,7 @@ import { MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { FC, useRef } from 'react';
 import { EditorOutput } from './EditorOutput';
-import { PostVote } from './postVote/postVote';
+import { PostVoteClient } from './postVote/postVoteClient';
 
 interface PostProps {
   subredditName?: string;
@@ -17,8 +17,8 @@ export const Post: FC<PostProps> = ({ subredditName, post }) => {
     <div className="rounded-md bg-white shadow">
       <div className="px-6 py-4 flex justify-between">
         {/* PostVotes */}
-        <PostVote
-          initialVoteParticipant={post.votesInfo.stat.UP}
+        <PostVoteClient
+          initialVoteParticipants={post.votesInfo.participants}
           initialUserVoteType={post.votesInfo.userVoteType ?? null}
           postId={post.id}
         />
@@ -60,7 +60,7 @@ export const Post: FC<PostProps> = ({ subredditName, post }) => {
           href={`/r/${subredditName}/post/${post.id}`}
         >
           <MessageSquare className="h-4 w-4" />
-          {post.votesInfo.stat.UP} comments
+          {post.comments.length} comments
         </Link>
       </div>
     </div>
