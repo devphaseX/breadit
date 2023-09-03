@@ -7,8 +7,7 @@ import { ZodError } from 'zod';
 export const POST = authMiddleware(async ({ user }, req) => {
   try {
     const { title, subredditId, content } = PostValidator.parse(
-      req.body ||
-        (await (req as unknown as { json: () => Promise<any> }).json())
+      await (req as unknown as { json: () => Promise<any> }).json()
     );
     const userId = user.id as string;
 
