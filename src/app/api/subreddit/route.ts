@@ -17,7 +17,7 @@ export const POST = authMiddleware(async (session, req) => {
     subreddit = await db.subreddit.create({
       data: {
         name,
-        creatorId: session.user.id,
+        creatorId: <string>session.user.id,
         subcribers: { create: { userId: session.user.id! } },
       },
     });
